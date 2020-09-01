@@ -83,7 +83,7 @@ app.put('/api/persons/:id', (req, res) => {
   res.json(person)
 })
 
-const PART = 3001
+const PART = process.env.PORT || 3001
 
 app.listen(PART, () => {
   console.log(`Server running in ${PART}`)

@@ -10,7 +10,8 @@
     "build:ui": "rm -rf build && cd ../phonebook-frontend && npm run build --prod && cp -r build ../phonebook-backend",
     "deploy": "git push Heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m ubuild && npm run deploy",
-    "logs:prod": "heroku logs --tail --remote heroku"
+    "logs:prod": "heroku logs --tail --remote heroku",
+    "lint": "eslint ."
   },
   "author": "lynn jiang",
   "license": "MIT",
@@ -23,6 +24,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^7.8.1",
     "nodemon": "^2.0.4"
   }
 }

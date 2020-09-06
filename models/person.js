@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const url = process.env.MONGODB_URL
 
@@ -14,9 +15,19 @@ mongoose
   })
 
 const personShema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: 3,
+    required: true,
+    unique: true,
+  },
+  number: {
+    type: String,
+    minlength: 8,
+    required: true,
+  },
 })
+personShema.plugin(uniqueValidator)
 
 // 去除mongoDB的_id 用 id代替
 personShema.set('toJSON', {

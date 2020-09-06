@@ -31,45 +31,42 @@ app.get('/api/persons', (req, res) => {
   })
 })
 
-// app.get('/info', (req, res) => {
-//   const info = `<div>Phonebook has info for ${persons.length} people</div>`
-//   const date = `<div>${new Date()}</div>`
-//   res.send(`${info}${date}`)
-// })
-
-app.get('/api/persons/:id', (req, res) => {
-  Person.findById(req.params.id).then((person) => {
-    res.json(person)
+app.get('/info', (req, res) => {
+  Person.find({}).then((persons) => {
+    const info = `<div>Phonebook has info for ${persons.length} people</div>`
+    const date = `<div>${new Date()}</div>`
+    res.send(`${info}${date}`)
   })
-  // const id = Number(req.params.id)
-  // const person = persons.find((p) => p.id === id)
-  // if (person) {
-  //   res.json(person)
-  // } else {
-  //   res.status(404).end()
-  // }
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter((p) => p.id !== id)
-  res.status(204).end()
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((person) => {
+      if (person) {
+        res.json(person)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch((error) => next(error))
+})
+
+app.delete('/api/persons/:id', (req, res, next) => {
+  Person.findByIdAndRemove(req.params.id)
+    .then((result) => {
+      res.status(204).end()
+    })
+    .catch((error) => next(error))
 })
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
-  // const id = Math.random() * 1000
   if (!body.name || !body.number) {
     res.status(400).json({
       error: 'name or number missing',
     })
   }
-  // const name = persons.find((p) => p.name === body.name)
-  // if (name) {
-  //   res.status(400).json({
-  //     error: 'name must be unique',
-  //   })
-  // }
+
   const person = new Person({
     name: body.name,
     number: body.number,
@@ -80,18 +77,31 @@ app.post('/api/persons', (req, res) => {
   })
 })
 
-app.put('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
+app.put('/api/persons/:id', (req, res, next) => {
   const body = req.body
-  const index = persons.findIndex((p) => p.id === id)
+
   const person = {
-    id,
     name: body.name,
     number: body.number,
   }
-  persons.splice(index, 1, person)
-  res.json(person)
+
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatePerson) => {
+      res.json(updatePerson)
+    })
+    .catch((error) => next(error))
 })
+
+const errorHandler = (error, req, res, next) => {
+  console.log(error.message)
+
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
+    return res.status(400).send({ error: 'malformatted id' })
+  }
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PART = process.env.PORT || 3001
 

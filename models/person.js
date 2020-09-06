@@ -21,7 +21,7 @@ const personShema = new mongoose.Schema({
 // 去除mongoDB的_id 用 id代替
 personShema.set('toJSON', {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id
+    returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
   },
